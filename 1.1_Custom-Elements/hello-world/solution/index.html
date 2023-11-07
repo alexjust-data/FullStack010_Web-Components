@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hello-world WC</title>
+  </head>
+  <body>
+    <!--     
+      1- create a class HelloWorld.
+      2- Define it's constructor.
+      4- Register the element so you can use it.
+      5- Use the element.
+      3- Define it's connectedCallback lifecycle hook to write some text.
+      6- Make the attributeChangedCallback work!
+    -->
+
+    <hello-world></hello-world>
+    <hello-world a="56" b="hola"></hello-world>
+
+    <script>
+      class HelloWorld extends HTMLElement {
+
+        constructor() {
+          super();
+        }
+
+        connectedCallback() {
+          console.log('He entrado en el DOM');
+        }
+
+        disconnectedCallback() {
+          console.log('He salido en el DOM');
+        }
+
+        static get observedAttributes() {
+          return ['a', 'b'];
+        }
+
+        attributeChangedCallback(attributeName, oldValue, newValue) {
+          console.log(`soy el atributo ${attributeName} y he cambiado de ${oldValue} a ${newValue}`);
+        }
+      }
+
+      window.customElements.define('hello-world', HelloWorld);
+    </script>
+  </body>
+</html>
