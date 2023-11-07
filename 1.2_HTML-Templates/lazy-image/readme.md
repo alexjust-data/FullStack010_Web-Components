@@ -1,4 +1,6 @@
 
+### 1. DOM node
+
 Esto nunca se verá en el borwser porque simplemente es una etiqueta interte.
 
 ```html
@@ -14,6 +16,8 @@ Esto nunca se verá en el borwser porque simplemente es una etiqueta interte.
 Si le sacamos fuera de, `template` si que se pintaría.
 
 ### 2- Define the LazyImage class.
+
+Creo mi clase
 
 ```html
 <script>
@@ -34,23 +38,21 @@ Si le sacamos fuera de, `template` si que se pintaría.
 
 ¿porqué utilizaré el connectedCallback()? si quiero acceder a un nodo del dom tengo que asegurarme que tengo acceso y este es un entorno seguro para acceder al `DOM`.
 
-```html
-    <script>
-        // 2- Define the LazyImage class.
+```js
+// 2- Define the LazyImage class.
 
-        class LazyImage extends HTMLElement {
-            
-            constructor() {
-                super();
-            }
-        }
+class LazyImage extends HTMLElement {
+    
+    constructor() {
+        super();
+    }
+}
 
-        connectedCallback() {
-            const template = document.querySelector('template');
-        }
+connectedCallback() {
+    const template = document.querySelector('template');
+}
 
-        window.customElements.define('lazy-image', LazyImage);
-    </script>   
+window.customElements.define('lazy-image', LazyImage); 
 ```
 
 Con esto estoy yendo al DOM a treaerme toda esta etiqueta del `template`
@@ -87,60 +89,57 @@ image.src = 'https://pbs.twimg.com/profile_images/1360169463455379459/v7xAQtTB.j
 ```
 esto queda así
 
-```html
-    <script>
-        class LazyImage extends HTMLElement {
-            
-            constructor() {
-                super();
-            }
-        }
-
-      connectedCallback() {
-        const template = document.querySelector('template');
-
-        // esta es clave para tener el clone
-        const clone = template.content.cloneNode(true);
-
-        // seleccionamos el img del template clonado
-        const image = clone.querySelector('img');
-
-        // sobreescribo por una imagen que me interese
-        image.src = 'https://pbs.twimg.com/profile_images/1360169463455379459/v7xAQtTB.jpg';
+```js
+class LazyImage extends HTMLElement {
+      
+      constructor() {
+          super();
       }
+  }
 
-        window.customElements.define('lazy-image', LazyImage);
-    </script>   
+connectedCallback() {
+  const template = document.querySelector('template');
+
+  // esta es clave para tener el clone
+  const clone = template.content.cloneNode(true);
+
+  // seleccionamos el img del template clonado
+  const image = clone.querySelector('img');
+
+  // sobreescribo por una imagen que me interese
+  image.src = 'https://pbs.twimg.com/profile_images/1360169463455379459/v7xAQtTB.jpg';
+}
+
+  window.customElements.define('lazy-image', LazyImage); 
 ```
 
 ### 5- Append the clone to LazyImage component.
 
 `this` hace referencia a la clase en si.
 
-```html
-    <script>
-        class LazyImage extends HTMLElement {
-            
-            constructor() {
-                super();
-            }
-        }
-
-      connectedCallback() {
-        const template = document.querySelector('template');
-
-        const clone = template.content.cloneNode(true);
-
-        const image = clone.querySelector('img');
-
-        image.src = 'https://pbs.twimg.com/profile_images/1360169463455379459/v7xAQtTB.jpg';
-
-        // añadimos justo lo que pide la descripcion
-        this.appendChild(clone);
+```js
+class LazyImage extends HTMLElement {
+      
+      constructor() {
+          super();
       }
 
-        window.customElements.define('lazy-image', LazyImage);
-    </script>   
+  connectedCallback() {
+    const template = document.querySelector('template');
+
+    const clone = template.content.cloneNode(true);
+
+    const image = clone.querySelector('img');
+
+    image.src = 'https://pbs.twimg.com/profile_images/1360169463455379459/v7xAQtTB.jpg';
+
+    // añadimos justo lo que pide la descripcion
+    this.appendChild(clone);
+  }
+
+  window.customElements.define('lazy-image', LazyImage);
+
+}
 ```
 
 ### 6- Use the lazy-image component!!
@@ -265,4 +264,57 @@ Como tenemos que reaccionar a un combio de atributo a nuestro componente tenemos
       }
 ```
 
+esto no funcionaria del todo si no definimos nuestro metod estatido donde hemos de retornar una array diciendo que este metodo se ejecute para el atributo `scr`. Y con esto si la imagen está rota se pintará la otra que le hemos dicho.
 
+```js
+static get observedAttributes() {
+  return ['src'];
+}
+
+attributeChangedCallback(attributeName, oldValue, newValue) {
+  if (attributeName === 'src') {
+    this.querySelector('img').src = newValue;
+  }
+}
+```
+
+esto quedaría así:
+
+```html
+  <script>
+    
+    class LazyImage extends HTMLElement {
+      
+      constructor() {
+        super();
+
+        this.src = this.getAttribute('src') || 'https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg';
+      }
+
+      connectedCallback() {
+        const template = document.querySelector('template');
+
+        const clone = template.content.cloneNode(true);
+
+        const image = clone.querySelector('img');
+
+        image.src = this.src;
+
+        this.appendChild(clone);
+      }
+
+      static get observedAttributes() {
+        return ['src'];
+      }
+
+      attributeChangedCallback(attributeName, oldValue, newValue) {
+        if (attributeName === 'src') {
+          this.querySelector('img').src = newValue;
+        }
+      }
+
+    }
+
+    window.customElements.define('lazy-image', LazyImage);
+  </script>
+```
