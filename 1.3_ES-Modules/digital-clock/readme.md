@@ -1,4 +1,6 @@
 
+![](img/../../../img/es_modules.png)
+
 Hemos creado un `index.html` y lo que quiero hacer es importar el script `.js`y utilizarlo.
 
 1. importo el sript

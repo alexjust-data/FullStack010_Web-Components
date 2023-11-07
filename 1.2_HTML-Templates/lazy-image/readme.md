@@ -1,3 +1,4 @@
+![](img/../../../img/html_templates.png)
 
 ### 1. DOM node
 
