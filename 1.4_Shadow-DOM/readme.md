@@ -225,7 +225,9 @@ Y para saltarme el `shadown dom` utilizo la custom porperty que ha puesto a mi d
 </style>
 ```
 
-Incluso lo podrías definir en un fichero a parte. Las variables css son muy potentes y se pueden cambiar en tiempo de ejecucion.
+Incluso lo podrías definir en un fichero a parte. Las variables css son muy potentes y se pueden cambiar en tiempo de ejecucion. https://css-tricks.com/
+
+
 
 
 

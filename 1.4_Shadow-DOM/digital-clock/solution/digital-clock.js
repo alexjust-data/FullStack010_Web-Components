@@ -7,8 +7,10 @@ const template = document.createElement('template');
 
 template.innerHTML = `
   <style>
-    h2 {
-      color: var(--digital-clock-color, orangered);
+    ::root{
+        h2 {
+            color: var(--digital-clock-color), orange);
+        }
     }
   </style>
 
