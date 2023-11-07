@@ -10,9 +10,9 @@ class DigitalClock extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log('connectedCalback');
+    console.log('<------- connectedCalback ----->');
 
-    setInterval(() => {
+    setInterval(() => { // permite ejecutar una funcion n veces cada un periodo de tiempo
       const now = new Date();
       const hours = now.getHours();
       const minutes = now.getMinutes();
