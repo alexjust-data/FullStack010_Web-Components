@@ -281,40 +281,40 @@ attributeChangedCallback(attributeName, oldValue, newValue) {
 esto quedaría así:
 
 ```html
-  <script>
+<script>
+  
+  class LazyImage extends HTMLElement {
     
-    class LazyImage extends HTMLElement {
-      
-      constructor() {
-        super();
+    constructor() {
+      super();
 
-        this.src = this.getAttribute('src') || 'https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg';
-      }
-
-      connectedCallback() {
-        const template = document.querySelector('template');
-
-        const clone = template.content.cloneNode(true);
-
-        const image = clone.querySelector('img');
-
-        image.src = this.src;
-
-        this.appendChild(clone);
-      }
-
-      static get observedAttributes() {
-        return ['src'];
-      }
-
-      attributeChangedCallback(attributeName, oldValue, newValue) {
-        if (attributeName === 'src') {
-          this.querySelector('img').src = newValue;
-        }
-      }
-
+      this.src = this.getAttribute('src') || 'https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg';
     }
 
-    window.customElements.define('lazy-image', LazyImage);
-  </script>
+    connectedCallback() {
+      const template = document.querySelector('template');
+
+      const clone = template.content.cloneNode(true);
+
+      const image = clone.querySelector('img');
+
+      image.src = this.src;
+
+      this.appendChild(clone);
+    }
+
+    static get observedAttributes() {
+      return ['src'];
+    }
+
+    attributeChangedCallback(attributeName, oldValue, newValue) {
+      if (attributeName === 'src') {
+        this.querySelector('img').src = newValue;
+      }
+    }
+
+  }
+
+  window.customElements.define('lazy-image', LazyImage);
+</script>
 ```
