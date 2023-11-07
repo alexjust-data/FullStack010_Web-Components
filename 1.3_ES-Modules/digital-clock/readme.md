@@ -15,7 +15,7 @@ Hemos creado un `index.html` y lo que quiero hacer es importar el script `.js`y 
 
 2. ya puedo usarlo
 
-´´´html
+```html
   <body>
     <h1>use your digital-clock here!</h1>
     <digital-clock></digital-clock>
