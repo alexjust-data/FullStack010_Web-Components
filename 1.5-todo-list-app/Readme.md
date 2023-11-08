@@ -32,6 +32,8 @@ Todo este proceso de responder estas preguntas se llama **DISEÑO TÉCNICO** y n
 * Como logica adicional cuando el usuario le da al botón crear task , tiene que vaciarse el imput.
 * Si no rellenamos nada y le damos al botón task, no se debe crear un to do nuevo.
 
+### Creamos primer web-component
+
 **¿por dónde empezamos?**
 
 Comenzaremos por que el imput y el botón vayan juntos dentro de un web-component, porque ahí hay cierta lógica que  me interesa que sea la responsabilidad de ese web-component. Es decir. voy a tener un WC que se encarga de tener el `to do` que tenemos que añadir en la parte del listado de tareas. La siguiente lógica es que si el usuario aprieta el botún crear se vacíe la caja del imput, pero si el botón se pusla sin que haya escrito nada en el imput no podemos permitir que ese `to do` vacío se añada. 
@@ -548,3 +550,275 @@ class CustomInput extends HTMLElement {
 
 customElements.define("custom-input", CustomInput);
 ```
+
+
+----
+
+
+### Creamos otro web-component
+
+
+Creamos el `1.5-todo-list/list-item.js` y comìamos el esqueleto del WC y le cambiamos el nombre del la clase. 
+
+
+```js
+const templateElement = document.createElement("template");
+
+templateElement.innerHTML = `
+<style>
+</style>
+
+<div class="list-item-wrapper">
+  <span>keepcoding component boilerplate</span>
+</div>
+
+`;
+
+class ListItem extends HTMLElement {
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+  }
+
+  connectedCallback() {
+    const template = templateElement.content.cloneNode(true);
+    this.shadowRoot.appendChild(template);
+  }
+}
+
+customElements.define("list-item", KeepcodingComponent);
+
+```
+
+**DISEÑO TÉCNICO**
+1. Responsabilidad: 
+   - Mostrará un texto que hace referencia a la tarea que hemos de hacer
+   - Eliminarse cuando se pulsa el boton de borrado
+2. Atributos: 
+   - Recibirá texto a mostrar --> content
+   - texto que se pinta en el boton --> buttonLabel
+3. Eventos: 
+   ¿tiene que enviar algún evento? Vamos a ir añadiendo el evento dinamicamente, es decir, tenemos este componente `ListItem` y el anterior, cuando se pulsa el botón si hay algo escrit... alguien escucha el evento y alguien va a ñadir un `ListItem` nuevo. Por lo tanto no hay eventos
+   - Hemos meditado incluir un evento de borrado pero no lo vmeos anecesario ahora.
+4. Custom properties: Qué atributos tiene si tiene atributos (custom properties)
+   - ` `
+
+
+**Leemos atributos**
+
+
+```js
+class ListItem extends HTMLElement {
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+    // leemos atributos
+    this.content = this.getAttribute('content') || 'Estudiar programación';
+    this.buttonLabel = this.getAttribute('buttonLabel') || '❌';
+  }
+
+  connectedCallback() {
+    const template = templateElement.content.cloneNode(true);
+    this.shadowRoot.appendChild(template);
+  }
+}
+
+customElements.define("list-item", ListItem);
+```
+
+Añadimos las etiquetas que vamos a escuchar   `<span></span>`, `<button></button>`
+
+```js
+
+templateElement.innerHTML = `
+<style>
+
+
+</style>
+
+<div class="list-item-wrapper">
+  <span></span>
+  <button></button>
+</div>
+
+`;
+```
+
+```js
+class ListItem extends HTMLElement {
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+
+    this.content = this.getAttribute('content') || 'Estudiar programación';
+    this.buttonLabel = this.getAttribute('buttonLabel') || '❌';
+  }
+
+  connectedCallback() {
+    const template = templateElement.content.cloneNode(true);
+    // pillamos el span
+    template.querySelector('span').textContent = this.content;
+    // pillamos el button
+    template.querySelector('button').textContent = this.buttonLabel;
+
+    this.shadowRoot.appendChild(template);
+}
+
+customElements.define("list-item", ListItem);
+```
+
+Vamos a por a lógic adel componente
+
+```js
+const templateElement = document.createElement("template");
+
+templateElement.innerHTML = `
+<style>
+
+
+</style>
+
+<div class="list-item-wrapper">
+  <span></span>
+  <button></button>
+</div>
+
+`;
+
+class ListItem extends HTMLElement {
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+    this.content = this.getAttribute('content') || 'Estudiar programación';
+    this.buttonLabel = this.getAttribute('buttonLabel') || '❌';
+  }
+
+  connectedCallback() {
+    const template = templateElement.content.cloneNode(true);
+    template.querySelector('span').textContent = this.content;
+    template.querySelector('button').textContent = this.buttonLabel;
+
+    this.shadowRoot.appendChild(template);
+
+    const button = this.shadowRoot.querySelector('button');
+    // gestionar el borrad a traés de un click del buton de borrado
+    button.addEventListener('click', () => {
+      this.remove(); // ¿como borramos el elemento nodo? metodo para elimnar nodo
+    })
+  }
+}
+
+customElements.define("list-item", ListItem);
+```
+
+
+Ahora importamoel script en el `ìndex.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root {
+            --custom-input-button-color: red;
+
+        }
+    </style>
+
+</head>
+<body>
+
+    <custom-input id="default"></custom-input> 
+    <custom-input id="custom" 
+                  type="number" 
+                  placeholder="escribe lo que quieras hacer" 
+                  buttonLabel="+"></custom-input>
+    <!--pinto las listas-->
+    <list-item></list-item>
+    <list-item content="hacer compa"></list-item>
+    <list-item content="hacer cena" buttLabel="Borrar"></list-item>
+
+
+
+    <script type="modelu" src="./custom-input.js"></script>
+    <!--me traigo el script-->
+    <script type="modelu" src="./list-item.js"></script>
+
+    <script>
+        const customInputDefault = document.querySelector('#default');
+        customInputDefault.addEventListener("submit", (evento) => {
+            console.log(event.detail);
+        })
+        const customInput = document.querySelector('#custom');
+        customInputDefault.addEventListener("submit", (evento) => {
+            console.log(event.detail);
+        })
+    </script> 
+</body>
+</html>
+```
+
+### tercer web-componente PADRE QUE COMUNICA AMBAS
+
+**Necesitamos comunicar los dos componentes que hemos creado** Dinámicamente cada vez que el botún `custom-input` de señales de vida que tega un evento, se cree de forma dinámica un nuevo elemento `lista-item`. Y estolo hareos a través de un componente nuevo más inteligente.
+
+`lista-item` se puede reutilizar facil y este `custom-input` también, vamos a por el `PADRE` de estos dos para que se comuniquen. Le llamaremos `toApp`
+
+1. creo archivo `todo-app.js`
+2. copio el esqueleto WC
+3. cambiamos los nombres
+  
+
+```js
+const templateElement = document.createElement("template");
+
+templateElement.innerHTML = `
+<style>
+</style>
+
+<div class="todo-app-wrapper">
+  <span class="counter">0</span>
+</div>
+
+`;
+
+class TodoApp extends HTMLElement {
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+  }
+
+  connectedCallback() {
+    const template = templateElement.content.cloneNode(true);
+    this.shadowRoot.appendChild(template);
+
+    }
+  }
+
+}
+
+customElements.define("todo-app", TodoApp);
+```
+
+**DISEÑO TÉCNICO**
+1. Responsabilidad: 
+   - Cada vez que se cree un elemento nuevomostrarlo en la lista
+   - persistir los todos una vez mas (guardar en bbdd, se llama `persistencia`)
+   - contador ede `todos` pendientes
+   - opcional --> lista de todos completados 
+2. Atributos: 
+   - 
+3. Eventos: 
+   ¿
+   - 
+4. Custom properties: Qué atributos tiene si tiene atributos (custom properties)
+   - ` `
