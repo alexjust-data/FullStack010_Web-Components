@@ -5,39 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        :root {
-            --custom-input-button-color: red;
-
-        }
-    </style>
 
 </head>
 <body>
+    <todo-app></todo-app>
 
-    <custom-input id="default"></custom-input> 
-
-    <custom-input id="custom" 
-                  type="number" 
-                  placeholder="escribe lo que quieras hacer" 
-                  buttonLabel="+"></custom-input>
-
-
-    <script type="modelu" src="./custom-input.js"></script>
-        <!--esto hará que ambos colores del buton cambien de color a rojo-->
-    <script type="modelu" src="./list-item.js"></script>
-
-    <script>
-        const customInputDefault = document.querySelector(#default);
-        customInputDefault.addEventListener("submit", (evento) => {
-            console.log(event.detail);
-        })
-        const customInput = document.querySelector(#custom);
-        customInputDefault.addEventListener("submit", (evento) => {
-            console.log(event.detail);
-        })
-    </script> 
-
-
+    <script type="module" src="./todo-app.js"></script>
 </body>
 </html>

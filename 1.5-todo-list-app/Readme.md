@@ -971,7 +971,6 @@ templateElement.innerHTML = `
 </style>
 
 <div class="todo-app-wrapper">
-  <span class="counter">0</span>
   <custom-input></custom-input>
   <div class="todo-list"></div>
 </div>`;
@@ -1057,5 +1056,148 @@ en `list-item.js` la logica de borrado se queda dentro del componente, tenemos q
   })
 ```
 
-siguente paso, vaos a `todo-app.js`
+siguente paso, vaos a `todo-app.js` añadir un escuchadro al evento "onItemRemoved" de cada `list-item` que nosotros pintemos.
 
+El escuchador tiene que ir sobre la etieuta ``<list-item content="${todo}"></list-item>`;` se alguna forma hemos de hacer selector y lisent
+
+aquí se están pintando todos nuestros list-items ` <div class="todo-list"></div>`
+
+```js
+templateElement.innerHTML = `
+<style>
+</style>
+
+<div class="todo-app-wrapper">
+  <custom-input></custom-input>
+  <div class="todo-list"></div>
+</div>
+`;
+```
+
+podríamos añadirle el escuchador del aevento a ese `div` puesto que es el punto de convergencia de todos los `list-items`. es decir, si el componente emite un evento y los eventos hacen bubling hacia arriba , todos los eventos de `"onItemRemoved"` deverían apasar por ahí.
+
+
+
+
+```js
+templateElement.innerHTML = `
+<style>
+</style>
+
+<div class="todo-app-wrapper">
+  <span class="counter">0</span>
+  <custom-input></custom-input>
+  <div class="todo-list"></div>
+</div>
+`;
+```
+
+cada vez que hagamos un `todo` vamos a ir a por ese `<span class="counter">0</span>`
+
+añadimos UNA PROPIEDAD EN EL CONSTRUCTOR `this.counter = 0;`
+
+```js
+const counter = this.shadowRoot.querySelector('.counter');
+// sumamos 1 cada vez que cuente
+counter.textContent = ++this.counter;
+```
+
+y cada vez que se elimine uno l restamos 
+
+```js
+    listItem.addEventListener('onItemRemoved', () => {
+        // cada vez ques e elimine 1 lo restamos 
+        counter.textContent = --this.counter;
+    })
+```
+
+quedando la función así
+
+```js
+  addTodo(todo) {
+    const counter = this.shadowRoot.querySelector('.counter');
+    counter.textContent = ++this.counter;
+
+    const todoList = this.shadowRoot.querySelector('.todo-list');
+    const newDiv = document.createElement('div');
+
+    // cada vez que creamos esta linea ...
+    newDiv.innerHTML = `<list-item content="${todo}"></list-item>`;
+
+    // ... vamos a por el list-item ...
+    const listItem = newDiv.querySelector('list-item');
+
+    // ... y añado un addEventList, uno cada vez que se cree un nuevo escuchador
+    listItem.addEventListener('onItemRemoved', () => {
+        // cada vez ques e elimine 1 lo restamos 
+        counter.textContent = --this.counter;
+    })
+```
+
+y el file así
+
+
+```js
+import './custom-input.js';
+import './list-item.js';
+
+const templateElement = document.createElement("template");
+
+templateElement.innerHTML = `
+<style>
+
+
+</style>
+
+<div class="todo-app-wrapper">
+  <span class="counter">0</span>
+  <custom-input></custom-input>
+  <div class="todo-list"></div>
+</div>
+
+`;
+
+class TodoApp extends HTMLElement {
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+    this.counter = 0;
+  }
+
+  connectedCallback() {
+    const template = templateElement.content.cloneNode(true);
+    this.shadowRoot.appendChild(template);
+
+    const customInput = this.shadowRoot.querySelector('custom-input');
+    customInput.addEventListener('submit', (event) => {
+      this.addTodo(event.detail);
+    })
+  }
+
+  addTodo(todo) {
+    const counter = this.shadowRoot.querySelector('.counter');
+    counter.textContent = ++this.counter;
+
+    const todoList = this.shadowRoot.querySelector('.todo-list');
+    const newDiv = document.createElement('div');
+
+    // cada vez que creamos esta linea ...
+    newDiv.innerHTML = `<list-item content="${todo}"></list-item>`;
+
+    // ... vamos a por el list-item ...
+    const listItem = newDiv.querySelector('list-item');
+
+    // ... y añado un addEventList, uno cada vez que se cree un nuevo escuchador
+    listItem.addEventListener('onItemRemoved', () => {
+        // cada vez ques e elimine 1 lo restamos 
+        counter.textContent = --this.counter;
+    })
+  
+    todoList.appendChild(newDiv);
+  }
+
+}
+
+customElements.define("todo-app", TodoApp);
+```
