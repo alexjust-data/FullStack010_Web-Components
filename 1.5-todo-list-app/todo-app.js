@@ -60,11 +60,17 @@ class TodoApp extends HTMLElement {
 
     const todoList = this.shadowRoot.querySelector('.todo-list');
     const newDiv = document.createElement('div');
+
+    // cada vez que creamos esta linea ...
     newDiv.innerHTML = `<list-item content="${todo}"></list-item>`;
 
+    // ... vamos a por el list-item ...
     const listItem = newDiv.querySelector('list-item');
+
+    // ... y añado un addEventList, uno cada vez que se cree un nuevo escuchador
     listItem.addEventListener('onItemRemoved', () => {
-      counter.textContent = --this.counter;
+        // cada vez ques e elimine 1 lo restamos 
+        counter.textContent = --this.counter;
     })
   
     todoList.appendChild(newDiv);
