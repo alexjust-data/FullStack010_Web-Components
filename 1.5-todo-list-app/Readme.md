@@ -1700,3 +1700,137 @@ refactorizamos
 **problema** : si un usuario mete varias tareas de input con comas, la hemos liado porque hacemos split con las comas. Idea:
 
 en vez de array de string pelaus lo idones sería tener un array de objetos y cada opbjeto sea la representacion de un `todo`. Tampoc me gusta que la identificacion del todo lo hacemos por ese texto.
+
+
+Vamos a hacer una raiz de objetos para tener una representacion de cada tubo por debajo y vamos a identificar los tudos por el texto que se está mostrando si no por algún valor que nos inventemos.
+
+**profesional** Si indetificas los todos por el indice del array se podrían repetir. Cuando tengas que identificar de forma unica un evento generalmente se identifica por un [UUID] https://www.uuidgenerator.net/ Si estas utilizando un nilln de filas vas a utilizar un uuid. Aquí no lo haremos porque tendremos que perder tiempo con una librería de generar uuid
+
+Un truco `date.now` te devuelve lo smilisegundos en el momento que se ejecuta esa linea de codigo, cada vez que creemos un `todo` le asignaremos este id.
+
+Identificar de forma unica al id ¿donde sería el mejor momento de asignar un id a un `listItem`? en el momento de crearlo.
+
+El emjor sitio para generar el `id` para e listItem sería en el constructor. En el mismo instante que ese `listItem` se crea.
+
+```js
+class ListItem extends HTMLElement {
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: "open" });
+    this.content = this.getAttribute('content') || 'Estudiar programación';
+    this.buttonLabel = this.getAttribute('buttonLabel') || '❌';
+    this.is = Date.now(); // lo creo
+  }
+```
+
+si queremos utilizar este id para boorrar, lo hemos de guardar en el `localStorage` ¿qué hacemos? mandar el id al evento. Estamos mandando el `.content` para saber de alguna manera (porque esto lo hemos hecho hace un moento, digimos que el evento "onItemRemoved" está vacío, entonces voy a enviar el contenido, enviar el `id`.
+
+list-item.js
+
+```js
+    button.addEventListener('click', () => {
+      const event = new CustomEvent("onItemRemoved", {
+        detail: this.id // envío el id
+      });
+      this.dispatchEvent(event);
+      this.remove();
+    })
+```
+
+el custom imput no debería generar el id, simplemente encargarse de dar el valor del input  ,pero creo que sería responsabilidad del `todoApp` en este punto de generar el id dentro ; èro luego hay que pasarlo al `listItem`. Quien tiene la necesidad de tener un id unico es el todo-app.js
+
+quito esto ` this.is = Date.now(); // lo creo` de antes. Voy a `todo-app.js`
+
+
+```js
+  addTodo(todo) {
+    this.todos.push({
+      content: todo, id: Date.now()
+    });
+  //   const counter = this.shadowRoot.querySelector('.counter');
+  //   counter.textContent = ++this.counter;
+
+  //   this.addListItem(todo);
+
+  //   localStorage.setItem("todos", this.todos);
+  // }
+```
+
+```js
+  // getTodos() {
+  //   const todosAsString = localStorage.getItem("todos");
+  //   let todos = [];
+
+    if (todosAsString) {
+      todos = JSON.parse(todosAsString)
+  //   }
+
+  //   return todos;
+  // }
+```
+
+aquí ahora guardamos un array de objetos que tiene una propedad que s el content
+
+```js
+
+  addListItem(todo) {
+  //   const todoList = this.shadowRoot.querySelector('.todo-list');
+  //   const newDiv = document.createElement('div');
+    newDiv.innerHTML = `<list-item content="${todo.content}"></list-item>`; // añado .content
+
+  //   const listItem = newDiv.querySelector('list-item');
+  //   listItem.addEventListener('onItemRemoved', (event) => {
+  //       const counter = this.shadowRoot.querySelector('.counter');
+  //       counter.textContent = --this.counter;
+  //       this.todos = this.todos.filter(todo => todo !== event.detail);
+  //       localStorage.setItem("todos", this.todos);
+  //   })
+
+  //   todoList.appendChild(newDiv);
+  // }
+
+```
+---
+
+problema solucionado
+
+```js
+  addTodo(todo) { // aquí tod es una cadena de texto
+    this.todos.push({
+      content: todo, id: Date.now()
+    });
+    const counter = this.shadowRoot.querySelector('.counter');
+    counter.textContent = ++this.counter;
+    // aquí ejecutamos el método pasando un string
+    this.addListItem(todo); // esto cuando el usuario hace el clciak
+
+    localStorage.setItem("todos", this.todos);
+  }
+```
+
+Aquí el primer `this.todo.` se ha cargado un array de objeto y luego cuabdo volvemos a ejecutar `.addListItem (todo)` le mandamos un objeto; entonces hay que reparar,
+
+```js
+  drawPendingTodos() {
+    this.todos.forEach(todo => {this.addListItem(todo)});
+  }
+```
+
+Hay que unificar el tipo de datos que le estamos pasadno. Lo arreglamos así:
+
+ ```js
+  // addTodo(todo) { 
+  //   this.todos.push({
+  //     content: todo, id: Date.now()
+  //   });
+  //   const counter = this.shadowRoot.querySelector('.counter');
+  //   counter.textContent = ++this.counter;
+
+    this.addListItem(content: todo); 
+
+  //   localStorage.setItem("todos", this.todos);
+  // }
+```
+
+voy a cre un metodo

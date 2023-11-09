@@ -55,12 +55,14 @@ class TodoApp extends HTMLElement {
     })
   }
 
-  addTodo(todo) {
-    this.todos.push(todo);
+  addTodo(todo) { // aquí tod es una cadena de texto
+    this.todos.push({
+      content: todo, id: Date.now()
+    });
     const counter = this.shadowRoot.querySelector('.counter');
     counter.textContent = ++this.counter;
-
-    this.addListItem(todo);
+    // aquí ejecutamos el método pasando un string
+    this.addListItem(content: todo);  // esto cuando el usuario hace el clciak
 
     localStorage.setItem("todos", this.todos);
   }
@@ -73,7 +75,7 @@ class TodoApp extends HTMLElement {
 
     // Si se encontró una cadena ('todosAsString'), la convertimos de nuevo a un array
     if (todosAsString) {
-      todos = todosAsString.split(',');
+      todos = todos = JSON.parse(todosAsString);
     }
 
     return todos;
@@ -86,7 +88,6 @@ class TodoApp extends HTMLElement {
   addListItem(todo) {
     const todoList = this.shadowRoot.querySelector('.todo-list');
     const newDiv = document.createElement('div');
-
     newDiv.innerHTML = `<list-item content="${todo}"></list-item>`;
 
     const listItem = newDiv.querySelector('list-item');
@@ -97,7 +98,7 @@ class TodoApp extends HTMLElement {
         localStorage.setItem("todos", this.todos);
     })
 
-    return  listItem;
+    todoList.appendChild(newDiv);
   }
 }
 
