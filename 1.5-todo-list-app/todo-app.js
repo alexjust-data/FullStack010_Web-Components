@@ -24,8 +24,6 @@ const templateElement = document.createElement("template");
 
 templateElement.innerHTML = `
 <style>
-
-
 </style>
 
 <div class="todo-app-wrapper">
@@ -33,7 +31,6 @@ templateElement.innerHTML = `
   <custom-input></custom-input>
   <div class="todo-list"></div>
 </div>
-
 `;
 
 class TodoApp extends HTMLElement {
@@ -41,12 +38,16 @@ class TodoApp extends HTMLElement {
     super();
 
     this.attachShadow({ mode: "open" });
-    this.counter = 0;
+    this.todos = this.getTodos();
+    this.counter = this.todos.length;
   }
 
   connectedCallback() {
     const template = templateElement.content.cloneNode(true);
+    template.querySelector('.counter').textContent = this.counter; 
     this.shadowRoot.appendChild(template);
+
+    this.drawPendingTodos();  // creamos una funcion nueva
 
     const customInput = this.shadowRoot.querySelector('custom-input');
     customInput.addEventListener('submit', (event) => {
@@ -55,27 +56,49 @@ class TodoApp extends HTMLElement {
   }
 
   addTodo(todo) {
+    this.todos.push(todo);
     const counter = this.shadowRoot.querySelector('.counter');
     counter.textContent = ++this.counter;
 
+    this.addListItem(todo);
+
+    localStorage.setItem("todos", this.todos);
+  }
+
+
+  getTodos() {
+    // recuperar lista tareas como una cadena de texto del localStorage
+    const todosAsString = localStorage.getItem("todos");
+    let todos = [];
+
+    // Si se encontró una cadena ('todosAsString'), la convertimos de nuevo a un array
+    if (todosAsString) {
+      todos = todosAsString.split(',');
+    }
+
+    return todos;
+  }
+
+  drawPendingTodos() {
+    this.todos.forEach(todo => {this.addListItem(todo)});
+  }
+
+  addListItem(todo) {
     const todoList = this.shadowRoot.querySelector('.todo-list');
     const newDiv = document.createElement('div');
 
-    // cada vez que creamos esta linea ...
     newDiv.innerHTML = `<list-item content="${todo}"></list-item>`;
 
-    // ... vamos a por el list-item ...
     const listItem = newDiv.querySelector('list-item');
-
-    // ... y añado un addEventList, uno cada vez que se cree un nuevo escuchador
-    listItem.addEventListener('onItemRemoved', () => {
-        // cada vez ques e elimine 1 lo restamos 
+    listItem.addEventListener('onItemRemoved', (event) => {
+        const counter = this.shadowRoot.querySelector('.counter');
         counter.textContent = --this.counter;
+        this.todos = this.todos.filter(todo => todo !== event.detail);
+        localStorage.setItem("todos", this.todos);
     })
-  
-    todoList.appendChild(newDiv);
-  }
 
+    return  listItem;
+  }
 }
 
 customElements.define("todo-app", TodoApp);
